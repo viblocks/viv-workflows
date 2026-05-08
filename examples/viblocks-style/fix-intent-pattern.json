@@ -1,0 +1,46 @@
+{
+  "$schema": "../../schemas/fix-intent-pattern.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "agent_type_pattern": "implementer$"
+  },
+  "intent_keywords": [
+    {
+      "language": "en",
+      "keywords": [
+        "fix",
+        "bug",
+        "fail",
+        "broken",
+        "crash",
+        "failing",
+        "unexpected",
+        "regression",
+        "broke",
+        "breaking",
+        "error.*fail",
+        "error.*break",
+        "error.*crash"
+      ]
+    },
+    {
+      "language": "es",
+      "keywords": [
+        "falla",
+        "corregir",
+        "arreglar",
+        "roto",
+        "no corre",
+        "no pasa",
+        "no funciona",
+        "rompi"
+      ]
+    }
+  ],
+  "required_tokens": [
+    "Root cause:",
+    "Causa raíz:",
+    "Causa raiz:"
+  ],
+  "violation_message": "DEBUGGING GATE: falta Root cause: o Causa raíz: — invoca Skill(systematic-debugging) y artículalo en el prompt del implementer."
+}

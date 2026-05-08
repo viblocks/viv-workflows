@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schemas/evidence-schema.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "bash_command_pattern": "gh issue close",
+    "comment_extraction": "--comment <text>"
+  },
+  "required_fields": [
+    {
+      "marker": "**Verification**",
+      "format": "PASS|FAIL — N/N tests, build OK|FAIL"
+    },
+    {
+      "marker": "**Code review**",
+      "format": "<reviewer-agent> — PASS | N issues (severity)"
+    },
+    {
+      "marker": "**Security review**",
+      "format": "PASS|FAIL|N/A — <justification when N/A>"
+    },
+    {
+      "marker": "**Commits**",
+      "format": "list of commit SHAs"
+    }
+  ],
+  "validations": [
+    {
+      "id": "security-na-needs-justification",
+      "applies_to_marker": "**Security review**",
+      "rule": "if value contains 'N/A' (case-insensitive), the value MUST also contain a literal ' -- ' (space-dashdash-space) followed by a non-empty justification",
+      "violation_message": "EVIDENCE GATE: Security review is N/A but has no justification. Use format: **Security review**: N/A -- <reason> (e.g. no security-sensitive paths changed)."
+    }
+  ]
+}

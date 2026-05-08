@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/viblocks/viv-workflows/main/schemas/implementer-reviewer-pairings.schema.json",
+  "title": "implementer-reviewer-pairings",
+  "description": "Defines which reviewer follows which implementer in the post-implementation chain. Default rule derives from viv-routing; explicit overrides go in 'overrides'. See ADR-003.",
+  "type": "object",
+  "required": ["default_rule"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "default_rule": {
+      "type": "string",
+      "enum": ["from-routing-table", "explicit-only"],
+      "description": "from-routing-table: pair implementer→reviewer using routing-table.json (route.implementer paired with route.reviewer). explicit-only: only use overrides; no derivation."
+    },
+    "overrides": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/pairing" },
+      "description": "Explicit overrides. An entry here takes precedence over default_rule for the matching implementer."
+    }
+  },
+  "$defs": {
+    "pairing": {
+      "type": "object",
+      "required": ["implementer", "reviewer"],
+      "additionalProperties": false,
+      "properties": {
+        "implementer": { "type": "string" },
+        "reviewer": { "type": ["string", "null"] },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

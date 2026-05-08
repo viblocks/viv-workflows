@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/viblocks/viv-workflows/main/schemas/audit-trail-pattern.schema.json",
+  "title": "audit-trail-pattern",
+  "description": "Required commit trailer for Class A commits. Hooks block git commit when missing.",
+  "type": "object",
+  "required": ["trigger", "applies_to", "required_trailer"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "trigger": {
+      "type": "object",
+      "required": ["bash_command_pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "bash_command_pattern": {
+          "type": "string",
+          "examples": ["git commit"]
+        }
+      }
+    },
+    "applies_to": {
+      "type": "string",
+      "enum": ["class_a", "all", "any-staged-path"],
+      "description": "class_a: only when staged files match enforced routes in routing-table. all: every commit. any-staged-path: when any path is staged (rare)."
+    },
+    "required_trailer": {
+      "type": "object",
+      "required": ["name", "value_pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Trailer name (RFC 822 style header).",
+          "examples": ["Audit-Trail"]
+        },
+        "value_pattern": {
+          "type": "string",
+          "description": "Regex matched against the trailer value. Consumer-defined."
+        },
+        "examples": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "note": { "type": "string" }
+      }
+    },
+    "editor_mode_policy": {
+      "type": "string",
+      "enum": ["block", "warn", "allow"],
+      "description": "What to do when commit uses editor mode (no -m/-F). Default block (cannot validate trailer).",
+      "default": "block"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "../../schemas/post-implementation-chain.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "agent_type_pattern": "implementer$"
+  },
+  "stages": [
+    {
+      "id": "verification",
+      "kind": "verification",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true,
+      "note": "verification-before-completion skill: tests + build must pass."
+    },
+    {
+      "id": "domain-review",
+      "kind": "domain-review",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true,
+      "note": "Reviewer derived from routing-table (backend implementer → backend-crypto-reviewer; frontend implementer → frontend-crypto-reviewer; etc.)."
+    },
+    {
+      "id": "security-review",
+      "kind": "security-review",
+      "required": false,
+      "agent": "security-reviewer",
+      "blocks_on_failure": true,
+      "condition": {
+        "kind": "paths-match",
+        "paths": [
+          "**/controllers/**",
+          "**/dtos/**",
+          "**/guards/**",
+          "**/auth/**",
+          "**/forms/**",
+          "**/config/**",
+          "package.json",
+          "**/chain/**",
+          "**/enrichment/**"
+        ],
+        "note": "Triggers security review for OWASP-relevant paths. N/A when no match."
+      }
+    },
+    {
+      "id": "commit",
+      "kind": "commit",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true,
+      "note": "Auto-commit after all gates pass. Push manual."
+    }
+  ]
+}

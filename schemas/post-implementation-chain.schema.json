@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/viblocks/viv-workflows/main/schemas/post-implementation-chain.schema.json",
+  "title": "post-implementation-chain",
+  "description": "Ordered stages executed after a typed implementer agent completes. Hooks in viv-hooks consume this to enforce the chain.",
+  "type": "object",
+  "required": ["trigger", "stages"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "trigger": {
+      "type": "object",
+      "required": ["agent_type_pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "agent_type_pattern": {
+          "type": "string",
+          "description": "Regex matched against the dispatched agent's name. Chain runs after agents matching this pattern complete.",
+          "examples": ["implementer$"]
+        }
+      }
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/stage" }
+    }
+  },
+  "$defs": {
+    "stage": {
+      "type": "object",
+      "required": ["id", "kind"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["verification", "domain-review", "security-review", "commit"],
+          "description": "Stage classification. Hooks can dispatch the right consumer based on kind."
+        },
+        "required": {
+          "type": "boolean",
+          "default": true,
+          "description": "If false, stage is conditional (see condition)."
+        },
+        "condition": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Optional condition for conditional stages.",
+          "properties": {
+            "kind": { "type": "string", "enum": ["paths-match", "always", "never"] },
+            "paths": { "type": "array", "items": { "type": "string" } },
+            "note": { "type": "string" }
+          }
+        },
+        "agent": {
+          "type": ["string", "null"],
+          "description": "Specific agent to dispatch for this stage. Null if dispatch resolves dynamically (e.g. domain-review uses routing-table)."
+        },
+        "blocks_on_failure": {
+          "type": "boolean",
+          "default": true
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

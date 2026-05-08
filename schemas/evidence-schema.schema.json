@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/viblocks/viv-workflows/main/schemas/evidence-schema.schema.json",
+  "title": "evidence-schema",
+  "description": "Required fields in issue-close evidence. Hooks block the close action when fields are missing.",
+  "type": "object",
+  "required": ["trigger", "required_fields"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "trigger": {
+      "type": "object",
+      "required": ["bash_command_pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "bash_command_pattern": {
+          "type": "string",
+          "description": "Regex matched against the bash command that closes an issue.",
+          "examples": ["gh issue close", "linear issue close"]
+        },
+        "comment_extraction": {
+          "type": "string",
+          "description": "How the comment text is extracted from the bash command. Reference; consumers may vary.",
+          "examples": ["--comment <text>", "--body <text>"]
+        }
+      }
+    },
+    "required_fields": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/field" }
+    },
+    "validations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/validation" },
+      "description": "Optional cross-field validations (e.g. N/A justification)."
+    }
+  },
+  "$defs": {
+    "field": {
+      "type": "object",
+      "required": ["marker", "format"],
+      "additionalProperties": false,
+      "properties": {
+        "marker": {
+          "type": "string",
+          "description": "Literal substring that MUST appear in the comment.",
+          "examples": ["**Verification**", "**Code review**"]
+        },
+        "format": {
+          "type": "string",
+          "description": "Human-readable expected format following the marker."
+        },
+        "note": { "type": "string" }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["id", "applies_to_marker", "rule"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "applies_to_marker": { "type": "string" },
+        "rule": {
+          "type": "string",
+          "description": "Human-readable rule. Hooks implement matching logic.",
+          "examples": ["if value contains N/A, must include justification after the literal -- separator"]
+        },
+        "violation_message": { "type": "string" }
+      }
+    }
+  }
+}

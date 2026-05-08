@@ -1,0 +1,18 @@
+{
+  "$schema": "../schemas/audit-trail-pattern.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "bash_command_pattern": "git commit"
+  },
+  "applies_to": "class_a",
+  "required_trailer": {
+    "name": "Audit-Trail",
+    "value_pattern": "^(<ISSUE_ID_PATTERN>|adhoc-[a-z0-9-]+)$",
+    "examples": [
+      "<PROJECT-PREFIX>-123",
+      "adhoc-fix-typo-readme"
+    ],
+    "note": "Replace <ISSUE_ID_PATTERN> with your project's issue ID regex (e.g. 'VI-[0-9]+' for Linear, 'JIRA-[A-Z]+-[0-9]+', 'gh-[0-9]+' for GitHub Issues)."
+  },
+  "editor_mode_policy": "block"
+}

@@ -1,0 +1,6 @@
+{
+  "$schema": "../schemas/implementer-reviewer-pairings.schema.json",
+  "version": "1.0",
+  "default_rule": "from-routing-table",
+  "overrides": []
+}

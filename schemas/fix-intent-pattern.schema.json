@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/viblocks/viv-workflows/main/schemas/fix-intent-pattern.schema.json",
+  "title": "fix-intent-pattern",
+  "description": "Detects fix/bug intent in implementer dispatch prompts and requires a Root cause: token. Hooks consume this rule.",
+  "type": "object",
+  "required": ["trigger", "intent_keywords", "required_tokens"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "trigger": {
+      "type": "object",
+      "required": ["agent_type_pattern"],
+      "additionalProperties": false,
+      "properties": {
+        "agent_type_pattern": {
+          "type": "string",
+          "description": "Regex matched against the dispatched agent's subagent_type. Rule applies only to matching agents.",
+          "examples": ["implementer$"]
+        }
+      }
+    },
+    "intent_keywords": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/keyword_set" },
+      "description": "Keyword sets per language. ANY match across any language triggers the rule."
+    },
+    "required_tokens": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "Literal token strings. ANY of them satisfies the requirement."
+      },
+      "examples": [["Root cause:", "Causa raíz:", "Causa raiz:"]]
+    },
+    "violation_message": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "keyword_set": {
+      "type": "object",
+      "required": ["language", "keywords"],
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "type": "string",
+          "description": "ISO 639-1 code or descriptive label.",
+          "examples": ["en", "es"]
+        },
+        "keywords": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Substrings or simple regex fragments matched case-insensitively."
+        },
+        "note": { "type": "string" }
+      }
+    }
+  }
+}

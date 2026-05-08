@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schemas/audit-trail-pattern.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "bash_command_pattern": "git commit"
+  },
+  "applies_to": "class_a",
+  "required_trailer": {
+    "name": "Audit-Trail",
+    "value_pattern": "^(VI-[0-9]+|adhoc-[a-z0-9-]+)$",
+    "examples": [
+      "VI-186",
+      "adhoc-fix-typo-readme"
+    ],
+    "note": "VI-XXX is Linear issue ID for the viblocks-ai project. adhoc-<id> is for F4 ad-hoc commits without an issue."
+  },
+  "editor_mode_policy": "block"
+}

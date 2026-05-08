@@ -1,0 +1,47 @@
+{
+  "$schema": "../schemas/post-implementation-chain.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "agent_type_pattern": "implementer$"
+  },
+  "stages": [
+    {
+      "id": "verification",
+      "kind": "verification",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true,
+      "note": "Build + tests must pass. Hooks may dispatch a verification skill or run project-defined make/npm targets."
+    },
+    {
+      "id": "domain-review",
+      "kind": "domain-review",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true,
+      "note": "Reviewer resolved from implementer-reviewer-pairings (default: same-domain reviewer per routing-table)."
+    },
+    {
+      "id": "security-review",
+      "kind": "security-review",
+      "required": false,
+      "agent": "security-reviewer",
+      "blocks_on_failure": true,
+      "condition": {
+        "kind": "paths-match",
+        "paths": [
+          "<SECURITY_SENSITIVE_PATHS>"
+        ],
+        "note": "Project-defined: controllers, DTOs, guards, auth, frontend forms, config with secrets/CORS, package.json. Skip with N/A justification when no match."
+      }
+    },
+    {
+      "id": "commit",
+      "kind": "commit",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true,
+      "note": "Auto-commit after all preceding gates pass. Push is never automatic; the user controls push."
+    }
+  ]
+}

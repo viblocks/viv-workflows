@@ -1,0 +1,15 @@
+{
+  "$schema": "../../schemas/audit-trail-pattern.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "bash_command_pattern": "git commit"
+  },
+  "applies_to": "class_a",
+  "required_trailer": {
+    "name": "Audit-Trail",
+    "value_pattern": "^gh-[0-9]+$",
+    "examples": ["gh-42"],
+    "note": "Minimal: GitHub issue numbers only. No ad-hoc bypass."
+  },
+  "editor_mode_policy": "block"
+}

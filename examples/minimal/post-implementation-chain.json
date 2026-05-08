@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schemas/post-implementation-chain.schema.json",
+  "version": "1.0",
+  "trigger": {
+    "agent_type_pattern": "implementer$"
+  },
+  "stages": [
+    {
+      "id": "verification",
+      "kind": "verification",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true
+    },
+    {
+      "id": "commit",
+      "kind": "commit",
+      "required": true,
+      "agent": null,
+      "blocks_on_failure": true,
+      "note": "Smallest viable chain: verify then commit. No domain review, no security review."
+    }
+  ]
+}
