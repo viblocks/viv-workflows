@@ -1,5 +1,15 @@
 # viv-workflows
 
+> ⚠️ **Internal component of [viv-typed-agents](https://github.com/viblocks/viv-typed-agents).**
+>
+> The recommended install path is the typed-agents product, not this repo standalone:
+> ```bash
+> git clone https://github.com/viblocks/viv-typed-agents
+> ./viv-typed-agents/scripts/install.sh /path/to/your-project --tier 3
+> ```
+>
+> This repo is public for transparency and as a surgical-use escape hatch (`cp -r` a single rule file). See [ADR-RD-010](https://github.com/viblocks/viv-typed-agents/blob/main/architecture/decisions/ADR-RD-010-product-composition.md) for product composition rationale.
+
 Declarative workflow gate rules for the typed-agents strategy.
 
 Per [ADR-RD-005](https://github.com/viblocks/viv-typed-agents/blob/main/architecture/decisions/ADR-RD-005-workflow-gates-as-data.md), workflow rules are **data**, not code. Hooks in `viv-hooks` are rule consumers; this repo is the rule producer.
