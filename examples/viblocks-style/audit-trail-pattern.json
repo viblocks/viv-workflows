@@ -12,7 +12,7 @@
       "VI-186",
       "adhoc-fix-typo-readme"
     ],
-    "note": "VI-XXX is Linear issue ID for the viblocks-ai project. adhoc-<id> is for F4 ad-hoc commits without an issue."
+    "note": "VI-XXX is Linear issue ID for the viblocks-ai project. adhoc-<id> is for ad-hoc commits without an associated issue."
   },
   "editor_mode_policy": "block"
 }
