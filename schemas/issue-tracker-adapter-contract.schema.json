@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/viblocks/viv-workflows/main/schemas/issue-tracker-adapter-contract.schema.json",
+  "title": "issue-tracker-adapter-contract",
+  "description": "Abstract CLI contract that every issue-tracker provider adapter (e.g. issue-tracker-linear, issue-tracker-github) must satisfy. Consumers of typed-agents-core's issue-driven-flow protocol invoke these verbs via a binary named 'issue-tracker' on PATH. Adapters live outside this repo (one per provider) and are composed by the consumer alongside typed-agents.",
+  "type": "object",
+  "required": ["binary_name", "config_file", "verbs"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string" },
+    "binary_name": {
+      "type": "string",
+      "const": "issue-tracker",
+      "description": "All adapters expose the same binary name. The consumer's PATH resolves to whichever adapter is installed."
+    },
+    "config_file": {
+      "type": "string",
+      "const": ".issue-tracker.toml",
+      "description": "Adapters read this file from the consumer repo root (walking up from cwd). Schema at https://raw.githubusercontent.com/viblocks/issue-tracker-linear/main/schemas/issue-tracker-config.schema.json (or sibling repos for other providers)."
+    },
+    "verbs": {
+      "type": "object",
+      "description": "Required and optional verbs. Adapters MAY exit with code 3 and a 'not supported' message for optional verbs.",
+      "required": [
+        "view", "query", "create",
+        "begin", "finish", "comment", "close",
+        "prefix", "pattern", "verify"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "view": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "<ID>" },
+            "description": { "const": "Print issue details." }
+          }
+        },
+        "query": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "--search <text> [provider-specific flags]" },
+            "description": { "const": "Search issues. Adapters pass through provider-specific flags." }
+          }
+        },
+        "create": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "--title <t> --body <b> [--labels <l>]" },
+            "description": { "const": "Create an issue. Labels must already exist provider-side." }
+          }
+        },
+        "begin": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "<ID>" },
+            "description": { "const": "Move issue to 'work in progress' state. Provider-side state name comes from adapter's state-mapping." }
+          }
+        },
+        "finish": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "<ID> --evidence <file>" },
+            "description": { "const": "Move issue to 'done' state, attaching the evidence file as a comment. Errors if --evidence is missing." }
+          }
+        },
+        "comment": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "<ID> --body-file <file>" },
+            "description": { "const": "Append a comment without changing state." }
+          }
+        },
+        "close": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "<ID> [--reason <r>]" },
+            "description": { "const": "Move to 'done' without evidence. Use for stale/duplicate/won't-fix. The evidence-gate hook will block this verb if used in a change-flow context where evidence is required." }
+          }
+        },
+        "cancel": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": false },
+            "args": { "const": "<ID>" },
+            "description": { "const": "Move to 'cancelled' state. Optional; adapters may exit 3 if provider has no cancel state." }
+          }
+        },
+        "prefix": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "" },
+            "description": { "const": "Print the configured issue ID prefix (e.g. 'VI'). Used by audit-trail hooks to derive the trailer regex without hardcoding." }
+          }
+        },
+        "pattern": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "" },
+            "description": { "const": "Print a regex that matches valid issue IDs (e.g. 'VI-[0-9]+'). Used by hooks and CI gates." }
+          }
+        },
+        "verify": {
+          "type": "object",
+          "required": ["required", "args"],
+          "properties": {
+            "required": { "const": true },
+            "args": { "const": "" },
+            "description": { "const": "Run provider-side preflight: validate auth, team/project existence, labels, workflow states. Exit 0 if all checks pass, 1 if recoverable, 2 if fatal." }
+          }
+        }
+      }
+    },
+    "known_adapters": {
+      "type": "array",
+      "description": "Informational list of adapter repos known to implement this contract.",
+      "items": {
+        "type": "object",
+        "required": ["provider", "repo"],
+        "properties": {
+          "provider": { "type": "string" },
+          "repo": { "type": "string", "format": "uri" },
+          "status": { "type": "string", "enum": ["stable", "beta", "roadmap"] }
+        }
+      }
+    }
+  }
+}
