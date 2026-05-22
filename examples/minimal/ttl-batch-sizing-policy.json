@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schemas/ttl-batch-sizing-policy.schema.json",
+  "id": "ttl-batch-sizing-policy/default",
+  "version": "1.0.0",
+  "runtime": {
+    "ttl_seconds": 600,
+    "ttl_renewable": false
+  },
+  "ceiling": {
+    "empirical_value": 18,
+    "calibration_basis": "Initial empirical estimate; will be replaced by measured telemetry.",
+    "workload_type": "codegen-generic",
+    "last_calibrated": "2026-05-22"
+  },
+  "safety_margin": 0.8,
+  "cap_formula": "floor(ceiling.empirical_value * safety_margin)",
+  "failure_policies": {
+    "default": "abort",
+    "allowed": ["abort", "skip", "retry"]
+  },
+  "evidence_requirements": {
+    "items_completed_field": "Items completed",
+    "items_skipped_field":   "Items skipped",
+    "items_retried_field":   "Items retried",
+    "policy_field":          "Failure policy"
+  },
+  "telemetry": {
+    "per_item_duration_ms":  true,
+    "per_dispatch_total_ms": true,
+    "items_completed_ratio": true,
+    "truncation_observed":   true
+  }
+}

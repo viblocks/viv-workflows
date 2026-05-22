@@ -26,27 +26,32 @@ viv-workflows/
 │   ├── evidence-schema.schema.json
 │   ├── fix-intent-pattern.schema.json
 │   ├── audit-trail-pattern.schema.json
-│   └── implementer-reviewer-pairings.schema.json
+│   ├── implementer-reviewer-pairings.schema.json
+│   └── ttl-batch-sizing-policy.schema.json
 ├── rules/
 │   ├── post-implementation-chain.template.json
 │   ├── evidence-schema.template.json
 │   ├── fix-intent-pattern.template.json
 │   ├── audit-trail-pattern.template.json
-│   └── implementer-reviewer-pairings.template.json
+│   ├── implementer-reviewer-pairings.template.json
+│   └── ttl-batch-sizing-policy.template.json
 ├── examples/
 │   ├── viblocks-style/         ← concrete rules mirroring viblocks-ai
 │   └── minimal/                ← smallest viable rule set
 ├── architecture/
+│   ├── audits/
+│   │   └── 2026-05-22-ttl-batch-sizing-fanout.md
 │   └── decisions/
 │       ├── ADR-001-gate-vs-hook-boundary.md
 │       ├── ADR-002-i18n-fix-intent.md
-│       └── ADR-003-pairings-derived-from-routing.md
+│       ├── ADR-003-pairings-derived-from-routing.md
+│       └── ADR-004-ttl-batch-sizing-policy.md
 └── migration/
     ├── from-viblocks.md
     └── preservation-audit.md
 ```
 
-## The five rules
+## The six rules
 
 | Rule file | Trigger | What it gates |
 |---|---|---|
@@ -55,6 +60,7 @@ viv-workflows/
 | `fix-intent-pattern.json` | `Agent` dispatch with `*-implementer` | Detects fix/bug intent; requires `Root cause:` token |
 | `audit-trail-pattern.json` | `git commit` on Class A files | Required commit trailer (`Audit-Trail: <id>`) |
 | `implementer-reviewer-pairings.json` | After typed implementer completes | Which reviewer follows which implementer (derived from routing) |
+| `ttl-batch-sizing-policy.json` | Read by orchestrator pre-dispatch and by hooks validating N | Declarative form of [viv-orchestration-rules ADR-005](https://github.com/viblocks/viv-orchestration-rules/blob/main/architecture/decisions/ADR-005-ttl-safety-batch-sizing.md); publishes runtime TTL, empirical ceiling, safety margin, cap formula, failure policies, and telemetry hints as data (see [ADR-004](architecture/decisions/ADR-004-ttl-batch-sizing-policy.md)) |
 
 ## Quick start (consumer)
 

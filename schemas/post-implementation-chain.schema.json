@@ -25,6 +25,26 @@
       "type": "array",
       "minItems": 1,
       "items": { "$ref": "#/$defs/stage" }
+    },
+    "dispatch_constraints": {
+      "type": "object",
+      "description": "Optional pre-dispatch constraints. Future rules that prescribe fan-out (none currently) MUST set max_batch_size_ref so the cap is honored declaratively. See ttl-batch-sizing-policy.schema.json and the 2026-05-22 audit in architecture/audits/.",
+      "additionalProperties": false,
+      "properties": {
+        "max_batch_size_ref": {
+          "type": "string",
+          "description": "Reference to a ttl-batch-sizing-policy by id (e.g. \"ttl-batch-sizing-policy/default\"). The consumer hook/orchestrator MUST cap dispatch N at floor(ceiling.empirical_value * safety_margin) of the referenced policy."
+        },
+        "max_batch_size_override": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Explicit numeric override. MUST NOT exceed the cap derived from the referenced policy. If set without max_batch_size_ref, the consumer rejects the rule."
+        },
+        "override_justification": {
+          "type": "string",
+          "description": "Required when max_batch_size_override is set. Free-form prose explaining why the override is safe."
+        }
+      }
     }
   },
   "$defs": {
