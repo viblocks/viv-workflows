@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schemas/ttl-batch-sizing-policy.schema.json",
+  "id": "ttl-batch-sizing-policy/viblocks",
+  "version": "1.0.0",
+  "runtime": {
+    "ttl_seconds": 600,
+    "ttl_renewable": false,
+    "note": "Claude Code agent dispatch TTL at the time this rule was authored."
+  },
+  "ceiling": {
+    "empirical_value": 18,
+    "calibration_basis": "Empirical observation across viblocks-waas codegen workflows: dispatches with N ≥ 18 items truncated in ~20% of runs; N ≤ 14 truncated < 2%. To be re-calibrated quarterly from orchestrator telemetry.",
+    "workload_type": "codegen-typescript",
+    "last_calibrated": "2026-05-22"
+  },
+  "safety_margin": 0.8,
+  "cap_formula": "floor(ceiling.empirical_value * safety_margin)",
+  "failure_policies": {
+    "default": "abort",
+    "allowed": ["abort", "skip", "retry"],
+    "per_category_recommendation": {
+      "backend-crypto-implementer":   { "policy": "abort", "rationale": "Cryptographic flows share invariants; partial completion can leak state." },
+      "frontend-waas-implementer":    { "policy": "skip",  "rationale": "UI components are usually independent." },
+      "backend-crypto-reviewer":      { "policy": "abort", "rationale": "Reviewers are read-only; per-item atomicity trivially satisfied. Default abort for safety." },
+      "migration-implementer":        { "policy": "abort", "rationale": "DB statements depend on ordering." }
+    }
+  },
+  "evidence_requirements": {
+    "items_completed_field": "Items completed",
+    "items_skipped_field":   "Items skipped",
+    "items_retried_field":   "Items retried",
+    "policy_field":          "Failure policy"
+  },
+  "telemetry": {
+    "per_item_duration_ms":  true,
+    "per_dispatch_total_ms": true,
+    "items_completed_ratio": true,
+    "truncation_observed":   true
+  },
+  "note": "With these values: cap = floor(18 * 0.8) = 14 items per dispatch. Workflows that need more must split into sub-batches; see viv-aidlc-orchestrator#12 for the splitter."
+}

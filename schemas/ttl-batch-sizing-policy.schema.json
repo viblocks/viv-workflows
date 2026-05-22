@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/viblocks/viv-workflows/main/schemas/ttl-batch-sizing-policy.schema.json",
+  "title": "ttl-batch-sizing-policy",
+  "description": "Declarative form of the TTL batch-sizing policy. Mirrors the prose rule in viv-orchestration-rules so consumers (hooks, orchestrator scripts) can read ceiling/margin/cap as data from one declarative source. See viv-orchestration-rules ADR-005 for the prose policy.",
+  "type": "object",
+  "required": ["id", "version", "runtime", "ceiling", "safety_margin", "cap_formula", "failure_policies"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "id": {
+      "type": "string",
+      "description": "Stable identifier referenced by other rules via dispatch_constraints.max_batch_size_ref.",
+      "examples": ["ttl-batch-sizing-policy/default"]
+    },
+    "version": {
+      "type": "string",
+      "description": "Semver of this policy. Increment on calibration changes."
+    },
+    "runtime": {
+      "type": "object",
+      "required": ["ttl_seconds", "ttl_renewable"],
+      "additionalProperties": false,
+      "properties": {
+        "ttl_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Host runtime's per-dispatch TTL in seconds."
+        },
+        "ttl_renewable": {
+          "type": "boolean",
+          "description": "Whether the TTL can be extended in-dispatch. Always false in this network (preserves isolation guarantee)."
+        },
+        "note": { "type": "string" }
+      }
+    },
+    "ceiling": {
+      "type": "object",
+      "required": ["empirical_value", "calibration_basis"],
+      "additionalProperties": false,
+      "properties": {
+        "empirical_value": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum items per dispatch above which truncation probability becomes unacceptable. CALIBRATED empirically, not estimated."
+        },
+        "calibration_basis": {
+          "type": "string",
+          "description": "How the ceiling was derived. Free-form; references to telemetry runs welcome.",
+          "examples": ["Empirical ~15-18 items at TTL 600s for codegen workloads; see orchestrator telemetry logs."]
+        },
+        "workload_type": {
+          "type": "string",
+          "description": "Workload category this ceiling applies to. Different workloads may have different ceilings.",
+          "examples": ["codegen-typescript", "schema-migration", "test-generation"]
+        },
+        "last_calibrated": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO date of the last calibration update."
+        }
+      }
+    },
+    "safety_margin": {
+      "type": "number",
+      "minimum": 0.1,
+      "maximum": 1.0,
+      "description": "Multiplier applied to ceiling to derive the operational cap. Default 0.8 per ADR-005."
+    },
+    "cap_formula": {
+      "type": "string",
+      "enum": ["floor(ceiling.empirical_value * safety_margin)"],
+      "description": "How cap is computed from ceiling and margin. Single allowed value to prevent ad-hoc formula drift; if a different formula is needed, propose via ADR."
+    },
+    "failure_policies": {
+      "type": "object",
+      "description": "Per-agent-category default failure policies for the per-item atomicity contract. Per viv-typed-agents ADR-RD-013.",
+      "required": ["default", "allowed"],
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "type": "string",
+          "enum": ["abort", "skip", "retry"]
+        },
+        "allowed": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["abort", "skip", "retry"] },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "per_category_recommendation": {
+          "type": "object",
+          "description": "Recommended policy per agent category. Authors override at agent-definition time with justification.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["policy"],
+            "additionalProperties": false,
+            "properties": {
+              "policy": { "type": "string", "enum": ["abort", "skip", "retry"] },
+              "rationale": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "evidence_requirements": {
+      "type": "object",
+      "description": "Extended evidence fields the orchestrator audits when dispatching with N > 1. Pairs with the standard evidence-schema rule.",
+      "additionalProperties": false,
+      "properties": {
+        "items_completed_field": { "type": "string", "examples": ["Items completed"] },
+        "items_skipped_field":   { "type": "string", "examples": ["Items skipped"] },
+        "items_retried_field":   { "type": "string", "examples": ["Items retried"] },
+        "policy_field":          { "type": "string", "examples": ["Failure policy"] }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "description": "Hints for the orchestrator about what telemetry to emit so calibration of `ceiling` can evolve empirically.",
+      "additionalProperties": false,
+      "properties": {
+        "per_item_duration_ms":      { "type": "boolean", "description": "Emit per-item wall time." },
+        "per_dispatch_total_ms":     { "type": "boolean", "description": "Emit per-dispatch total wall time." },
+        "items_completed_ratio":     { "type": "boolean", "description": "Emit completed / N." },
+        "truncation_observed":       { "type": "boolean", "description": "Emit a flag on abrupt termination." }
+      }
+    },
+    "note": { "type": "string" }
+  }
+}
